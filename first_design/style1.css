@@ -14,10 +14,50 @@ html {
 	background-size: cover;
 }
 
+#leftpane {
+	float: left;
+	width: 30%;
+	height: 100%;
+	position: relative;
+}
+
+#leftpane .task {
+	position: absolute;
+	
+	width: 80%;
+	height: 150px;
+
+	background: white;
+	border-radius: 3px;
+	box-shadow: 0px 4px rgba(0, 0, 0, 0.2);
+
+	margin: 10% 10% 10% 10%;
+
+	color: #888;
+	line-height: 100px;
+	text-align: center;
+
+	/* no key label selection (all browsers) */
+	-moz-user-select: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+
+
+#rightpane {
+	float: right;
+	width: 70%;
+	height: 100%;
+}
+
+
 #calculator {
 	width: 405px;
 	height: auto;
-
+	
 	margin: 100px auto;
 	padding: 20px 20px 9px;
 
