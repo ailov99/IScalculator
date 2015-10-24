@@ -20,63 +20,65 @@ var funcs = ["sin", "cos", "tan", "log"];
 // 2. Expression to be entered in calculator and solved
 // 3. Correct answer of the expression for checking user's anser
 var current_task;
+// Question counter
+var q_count = 1;
 
 
 // Generate a task for the user
 function generate_task() {
+	generate_task.q_count = ++generate_task.q_count || 1;
+	var task;
 	
-	// get a random task template
-	var task = randelem(tasks);
-
-	// parse task depending on its template
-	switch (tasks.indexOf(task)) {
-	case 0: {
-		// put random integers in
-		var randint1 = randint(1, 999);
-	    var randint2 = randint(1, 999);
-		task.text = task.text.replace("A", randint1);
-		task.text = task.text.replace("B", randint2);
-		task.expr = task.expr.replace("A", randint1);
-		task.expr = task.expr.replace("B", randint2);
-
-		// random arithmetic op
-		var randop = randelem(arith_ops);
-		task.text = task.text.replace("+", randop);
-        task.expr =	task.expr.replace("+", randop);
-		
-		break;
-	}
+	switch (generate_task.q_count) {
 	case 1: {
-		// put random integers in
-		var randint1 = randint(1, 999);
-	    var randint2 = randint(1, 999);
-		task.text = task.text.replace("A", randint1);
-		task.text = task.text.replace("B", randint2);
-		task.expr = task.expr.replace("A", randint1);
-		task.expr = task.expr.replace("B", randint2);
-
-		// random function
-		var randfunc1 = randelem(funcs);
-		var randfunc2 = randelem(funcs);
-		task.text = task.text.replace("D", randfunc1);
-		task.text = task.text.replace("E", randfunc2);
-		task.expr = task.expr.replace("D", randfunc1);
-		task.expr = task.expr.replace("E", randfunc2);
-
-		// random arithmetic op
-		var randop = randelem(arith_ops);
-		task.text = task.text.replace("+", randop);
-		task.expr = task.expr.replace("+", randop);
+		var num1 = randint(1,99);
+		var num2 = randint(1,99);
+		var op = randelem(arith_ops);
+		task = {text: 'Calculate ' + num1 + op + num2,
+				answer: math.eval(num1+op+num2).toString()};
+		break;
+	}
+	case 2: {
+		var num1 = randint(1,99);
+		task = {text: 'Find the square of ' + num1,
+				answer: math.eval(num1+'^2')};
+		first_plot();
+		break;
+	}
+	case 3: {
+		var num1 = randint(1,99);
+		var func = randelem(funcs);
+		task = {text: 'Find the ' + func + ' of ' + num1,
+				answer: math.eval(func+'('+num1+')')};
+		break;
+	}
+	case 4: {
+		var num1 = randint(1,99);
+		var num2 = randint(1,99);
+		var num3 = randint(1,99);
+		var func = randelem(funcs);
+		var op = randelem(arith_ops);
+		task = {text: 'What is the ' + func + ' of ' + num1 + '.' + num2 + op + num3 + ' ?',
+				answer: math.eval(func+'('+num1+'.'+num2+op+num3+')')};
+		break;
+	}
+	case 5: {
+		var num1 = randint(1,50);
+		task = {text: 'What is the area of a circle with a radius of   ' + num1 + ' ? ( hint: A = pi*sqrt(r) )',
+				answer: math.eval('pi*'+num1+'^2')};
+		break;
+	}
+	default: {
+		task = {text: 'CONGRATULATIONS! YOU HAVE FINISHED THE QUIZ!',
+				answer: ''};
+		$( "#dialog" ).dialog( "open" );
 		
 		break;
 	}
-	default: break;
 	}
-
-	// update as current task
-	var current = {text: task.text, expr: task.expr, answer: math.eval(task.expr).toString()};
-	document.querySelector('.task').innerHTML = current.text;
-	current_task = current;
+	
+	document.querySelector('.task').innerHTML = 'Q' + generate_task.q_count + '. ' + task.text;
+	current_task = task;
 }
 
 function setup() {
@@ -103,10 +105,6 @@ function setup() {
 			else if (btnVal == '=') {
 				var eq = inputVal;
 				var last = eq[eq.length - 1];
-
-				// remove last char if its not a digit
-				//if (operators.indexOf(last) > -1 || last == '.')
-				//	eq = eq.replace(/.$/, '');
 				
 				if (eq) {
 					var out;
@@ -121,11 +119,11 @@ function setup() {
 
 					if (current_task.answer != out)
 						console.log("NO");
-					else
+					else {
 						console.log("YES");
-					generate_task();
+						generate_task();
+					}
 				}
-				
 				decAdded = false;
 			}
 			// operator press
@@ -200,10 +198,80 @@ function setup() {
 			e.getPreventDefault();
 		}
 	}
-
-
+	//plot_one();
+	//d3.select("body").select("#rightpane").on("mousemove", function() {var pt = d3.mouse(this); tick(pt);});
 	// generate first task for user
 	generate_task();
 }
 
 window.onload = setup;
+
+// record of user clicks on the calculator
+var click_coords_record = [];
+
+// Callback for calculator clicks
+function calc_click(event) {
+    pos_x = event.offsetX?(event.offsetX):event.pageX-document.getElementById("calculator").offsetLeft;
+	pos_y = event.offsetY?(event.offsetY):event.pageY-document.getElementById("calculator").offsetTop;
+	// get coords of element under cursor
+	//pos_x = event.offsetX?(event.offsetX):event.pageX-document.getElementById(document.elementFromPoint(event.clientX, event.clientY)).offsetLeft;
+	//pos_y = event.offsetY?(event.offsetY):event.pageY-document.getElementById(document.elementFromPoint(event.clientX, event.clientY)).offsetTop;
+//	console.log(pos_x);
+	//	console.log(pos_y);
+	click_coords_record.push([pos_x, pos_y]);
+}
+
+// mouse movement coords tick
+function tick(pt) {
+	console.log(pt[0]);
+	console.log(pt[1]);
+}
+
+$(function() {
+  $( "#dialog" ).dialog({
+    autoOpen: false,
+    show: {
+      effect: "blind",
+      duration: 1000
+    },
+    hide: {
+      effect: "explode",
+      duration: 1000
+    }
+  });
+});
+
+// Plots user clicks as dots
+function plot_one() {
+
+	var sample = uniformRandomSampler(1000);
+
+	var svg = d3.select("#plot_wrap")
+		.append("svg")
+		.attr("width", 358)
+		.attr("height", 275)
+		.attr("class", "graph-svg-component");
+
+	d3.timer(function() {
+		for (var i = 0; i < 10; ++i) {
+			var s = sample();
+			if (!s) return true;
+			svg.append("circle")
+				.attr("cx", s[0])
+				.attr("cy", s[1])
+				.attr("r", 0)
+				.transition()
+				.attr("r", 2);
+		}
+	});
+}
+
+function uniformRandomSampler(numSamplesMax) {
+  var numSamples = 0;
+  return function() {
+      if (++numSamples > numSamplesMax) return;
+	  var ran = randelem(click_coords_record);
+      //return [ran[0], ran[1]];
+	  return [randint(0,500), randint(0,500)];
+  };
+}

@@ -1,10 +1,19 @@
 <!DOCTYPE html>
 <html>
   <head>
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<meta http-equiv="Content-Type" content="text/html;
+											 charset=utf-8">
+	<link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
 	<link rel="stylesheet" type="text/css" href="style1.css">
+	<script type="text/javascript"
+			src="../third_party/jquery.js"></script>
+	<script type="text/javascript" src="../third_party/jquery-ui.min.js"></script>
+	<script src="http://d3js.org/d3.v3.min.js"
+			charset="utf-8"></script>
+	 
     <script type="text/javascript" src="script1.js" ></script>
 	<script type="text/javascript" src="../third_party/math.min.js"></script>
+
   </head>
 
 
@@ -16,8 +25,9 @@
 
 
 	<div id="rightpane">
-	  <div id="calculator">
-
+	 
+	  <div id="calculator" onclick="calc_click(event)">
+		<div id="plot_wrap"></div>
 	    <!-- Clear/Reset/Screen -->
 	    <div class="top">
 		  <span class="clear">CE</span>
@@ -54,6 +64,10 @@
 	    </div>
 	  </div>
 	</div>
+
+<div id="dialog">
+ 
+</div>
 
 
 
