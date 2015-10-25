@@ -18,10 +18,17 @@ var funcs = ["sin", "cos", "tan", "log"];
 // global user task currently in progress, contains:
 // 1. Text to be displayed to user
 // 2. Expression to be entered in calculator and solved
-// 3. Correct answer of the expression for checking user's anser
+// 3. Correct answer of the expression for checking user's answer
 var current_task;
 // Question counter
 var q_count = 1;
+// task text record
+var task_texts = ['','','','',''];
+
+
+// User error counter (misclicks + wrong equation)
+var errors_by_task = [0, 0, 0, 0, 0];
+var screen_resets_by_task = [0,0,0,0,0];
 
 
 // Generate a task for the user
@@ -42,7 +49,6 @@ function generate_task() {
 		var num1 = randint(1,99);
 		task = {text: 'Find the square of ' + num1,
 				answer: math.eval(num1+'^2')};
-		first_plot();
 		break;
 	}
 	case 3: {
@@ -71,13 +77,28 @@ function generate_task() {
 	default: {
 		task = {text: 'CONGRATULATIONS! YOU HAVE FINISHED THE QUIZ!',
 				answer: ''};
-		$( "#dialog" ).dialog( "open" );
-		
+		//$( "#dialog" ).dialog( "open" );
+			nv.addGraph(function() {
+		var chart = nv.models.pieChart()
+			.x(function(d) { return d.label })
+			.y(function(d) { return d.value })
+			.showLabels(true);
+
+		d3.select("#chart svg")
+			.datum(exampleData())
+			.transition().duration(350)
+			.call(chart);
+
+		return chart;
+	});
+
 		break;
 	}
 	}
-	
-	document.querySelector('.task').innerHTML = 'Q' + generate_task.q_count + '. ' + task.text;
+
+	var display_string = 'Q' + generate_task.q_count + '. ' + task.text;
+	document.querySelector('.task').innerHTML = display_string;
+	task_texts[generate_task.q_count - 1] = display_string.substring(0, 29);  // keep task's generated text for the records
 	current_task = task;
 }
 
@@ -88,6 +109,7 @@ function setup() {
 	var verbose = ['log', 'sin', 'cos', 'tan'];
 	var decAdded = false;
 
+	
 	// Hook onclick events to all keys
 	for (var i = 0; i < keys.length; i++) {
 		keys[i].onclick = function(e) {
@@ -100,6 +122,11 @@ function setup() {
 			if (btnVal == 'CE') {
 				input.innerHTML = '';
 				decAdded = false;
+				// record the screen reset
+				if (screen_resets_by_task[generate_task.q_count - 1] == 0)
+					screen_resets_by_task[generate_task.q_count - 1]++;
+				else
+					errors_by_task[generate_task.q_count - 1]++; 
 			}
 			// eval key press
 			else if (btnVal == '=') {
@@ -113,16 +140,16 @@ function setup() {
 					}
 					catch(err) {
 						console.log(eq);
-						out = 'error';
+						out = 'error';  // invalid expression
 					}
 					input.innerHTML = out;
 
-					if (current_task.answer != out)
-						console.log("NO");
-					else {
-						console.log("YES");
-						generate_task();
-					}
+					if (current_task.answer == out)
+						generate_task();  // correct  answer -> generate a new task
+
+					/* Do not register an error if the user's answer is incorrect.
+					   This will be handled by the user pressing 'CE' by himself.
+                       Else, they cannot proceed any further with the tasks.      */
 				}
 				decAdded = false;
 			}
@@ -202,24 +229,11 @@ function setup() {
 	//d3.select("body").select("#rightpane").on("mousemove", function() {var pt = d3.mouse(this); tick(pt);});
 	// generate first task for user
 	generate_task();
+
 }
 
 window.onload = setup;
 
-// record of user clicks on the calculator
-var click_coords_record = [];
-
-// Callback for calculator clicks
-function calc_click(event) {
-    pos_x = event.offsetX?(event.offsetX):event.pageX-document.getElementById("calculator").offsetLeft;
-	pos_y = event.offsetY?(event.offsetY):event.pageY-document.getElementById("calculator").offsetTop;
-	// get coords of element under cursor
-	//pos_x = event.offsetX?(event.offsetX):event.pageX-document.getElementById(document.elementFromPoint(event.clientX, event.clientY)).offsetLeft;
-	//pos_y = event.offsetY?(event.offsetY):event.pageY-document.getElementById(document.elementFromPoint(event.clientX, event.clientY)).offsetTop;
-//	console.log(pos_x);
-	//	console.log(pos_y);
-	click_coords_record.push([pos_x, pos_y]);
-}
 
 // mouse movement coords tick
 function tick(pt) {
@@ -241,6 +255,7 @@ $(function() {
   });
 });
 
+//------------------ User clicks on calculator plot -----------------------------
 // Plots user clicks as dots
 function plot_one() {
 
@@ -275,3 +290,55 @@ function uniformRandomSampler(numSamplesMax) {
 	  return [randint(0,500), randint(0,500)];
   };
 }
+
+
+// record of user clicks on the calculator
+var click_coords_record = [];
+
+// Callback for calculator clicks
+function calc_click(event) {
+    pos_x = event.offsetX?(event.offsetX):event.pageX-document.getElementById("calculator").offsetLeft;
+	pos_y = event.offsetY?(event.offsetY):event.pageY-document.getElementById("calculator").offsetTop;
+	// get coords of element under cursor
+	//pos_x = event.offsetX?(event.offsetX):event.pageX-document.getElementById(document.elementFromPoint(event.clientX, event.clientY)).offsetLeft;
+	//pos_y = event.offsetY?(event.offsetY):event.pageY-document.getElementById(document.elementFromPoint(event.clientX, event.clientY)).offsetTop;
+    //	console.log(pos_x);
+	//	console.log(pos_y);
+	click_coords_record.push([pos_x, pos_y]);
+}
+//----------------------------------------------------------------------------------
+
+
+//Pie chart data generator. Uses records of user errors
+function exampleData() {
+  return  [
+      { 
+        "label": task_texts[0],
+        "value" : errors_by_task[0]
+      } , 
+      { 
+        "label": task_texts[1],
+        "value" : errors_by_task[1]
+      } , 
+      { 
+        "label": task_texts[2],
+        "value" : errors_by_task[2]
+      } , 
+      { 
+        "label": task_texts[3],
+        "value" : errors_by_task[3]
+      } , 
+      { 
+        "label": task_texts[4],
+        "value" : errors_by_task[4]
+      } 
+    ];
+}
+
+
+
+
+
+
+
+

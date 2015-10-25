@@ -198,3 +198,7 @@ html {
 #plot_wrap {
 	position: absolute;
 }
+
+#chart svg {
+	height: 400px;
+}
