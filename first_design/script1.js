@@ -8,6 +8,21 @@ function randelem(list) {
 	return list[Math.floor(Math.random()*list.length)];
 }
 
+
+
+// --------------------------- Timer ---------------------------
+var date;
+// global times record
+var times = [];
+
+function time_tap() {
+	var new_date = new Date();
+	var diff = (new_date - date)/1000;
+	date = new_date;
+	
+	return diff;
+}
+// -------------------------------------------------------------
 // Tasks setup
 // templates
 var tasks = [{text: "Calculate A + B", expr: "A + B"},
@@ -27,6 +42,10 @@ var task_texts = ['','','','',''];
 
 // Record of keys-to-be-pressed from all tasks (used for Fitt's Law calculations)
 var keys_to_press = [];
+// Record of keys-to-be-pressed for current task (used for timing)
+var current_key_seq = [];
+var current_seq_pos = 0;    // current index of key to-be-pressed
+var current_seq_times = []; // times of presses so far
 
 // User error counter (misclicks + wrong equation)
 var errors_by_task = [0, 0, 0, 0, 0];
@@ -46,10 +65,11 @@ function generate_task() {
 		task = {text: 'Calculate ' + num1 + op + num2,
 				answer: math.eval(num1+op+num2).toString()};
 		add_to_keys_record(num1);
-		keys_to_press.push(op);
+		keys_to_press.push(op); current_key_seq.push(op);
 		add_to_keys_record(num2);
-		keys_to_press.push('=');
-		keys_to_press.push('CE');
+		keys_to_press.push('='); current_key_seq.push('=');
+		keys_to_press.push('CE'); current_key_seq.push('CE');
+		date = new Date();
 		break;
 	}
 	case 2: {
@@ -57,10 +77,14 @@ function generate_task() {
 		task = {text: 'Find the value of ' + num1 + ' squared',
 				answer: math.eval(num1+'^2')};
 		add_to_keys_record(num1);
-		keys_to_press.push('^');
-		keys_to_press.push('2');
-		keys_to_press.push('=');
-		keys_to_press.push('CE');
+		keys_to_press.push('^'); current_key_seq.push('^');
+		keys_to_press.push('2'); current_key_seq.push('2');
+		keys_to_press.push('='); current_key_seq.push('=');
+		keys_to_press.push('CE'); current_key_seq.push('CE');
+		console.log(times);
+		console.log(current_key_seq);
+		console.log(current_seq_pos);
+		console.log(current_seq_times);
 		break;
 	}
 	case 3: {
@@ -68,11 +92,15 @@ function generate_task() {
 		var func = randelem(funcs);
 		task = {text: 'Find the ' + func + ' of ' + num1,
 				answer: math.eval(func+'('+num1+')')};
-		keys_to_press.push(func.toString());
+		keys_to_press.push(func.toString()); current_key_seq.push(func.toString());
 		add_to_keys_record(num1);
-		keys_to_press.push(')');
-		keys_to_press.push('=');
-		keys_to_press.push('CE');
+		keys_to_press.push(')'); current_key_seq.push(')');
+		keys_to_press.push('='); current_key_seq.push('=');
+		keys_to_press.push('CE'); current_key_seq.push('CE');
+				console.log(times);
+		console.log(current_key_seq);
+		console.log(current_seq_pos);
+		console.log(current_seq_times);
 		break;
 	}
 	case 4: {
@@ -83,32 +111,33 @@ function generate_task() {
 		var op = randelem(arith_ops);
 		task = {text: 'What is the ' + func + ' of ' + num1 + '.' + num2 + op + num3 + ' ?',
 				answer: math.eval(func+'('+num1+'.'+num2+op+num3+')')};
-		keys_to_press.push(func.toString());
+		keys_to_press.push(func.toString()); current_key_seq.push(func.toString());
 		add_to_keys_record(num1);
-		keys_to_press.push('.');
+		keys_to_press.push('.'); current_key_seq.push('.');
 		add_to_keys_record(num2);
-		keys_to_press.push(op);
+		keys_to_press.push(op); current_key_seq.push(op);
 		add_to_keys_record(num3);
-		keys_to_press.push(')');
-		keys_to_press.push('=');
-		keys_to_press.push('CE');
+		keys_to_press.push(')'); current_key_seq.push(')');
+		keys_to_press.push('='); current_key_seq.push('=');
+		keys_to_press.push('CE'); current_key_seq.push('CE');
 		break;
 	}
 	case 5: {
 		var num1 = randint(1,50);
 		task = {text: 'What is the area of a circle with a radius of   ' + num1 + ' ? ( hint: A = pi*square(r) )',
 				answer: math.eval('pi*'+num1+'^2')};
-		keys_to_press.push('pi');
-		keys_to_press.push('*');
+		keys_to_press.push('pi'); current_key_seq.push('pi');
+		keys_to_press.push('*'); current_key_seq.push('*');
 		add_to_keys_record(num1);
-		keys_to_press.push('^');
-		keys_to_press.push('2');
-		keys_to_press.push('=');
+		keys_to_press.push('^'); current_key_seq.push('^');
+		keys_to_press.push('2'); current_key_seq.push('2');
+		keys_to_press.push('='); current_key_seq.push('=');
 		break;
 	}
 	default: {
 		task = {text: 'CONGRATULATIONS! YOU HAVE FINISHED THE QUIZ!',
 				answer: ''};
+		$('#task_pane').remove();
 		break;
 	}
 	}
@@ -135,15 +164,31 @@ function setup() {
 			var inputVal = input.innerHTML;
 			var btnVal = this.innerHTML;
 
+			// check if user is currently entering the correct key from the current sequence
+			if (btnVal == current_key_seq[current_seq_pos]) {
+				current_seq_pos++;  // increment to next key
+				current_seq_times.push(time_tap());
+			}
+			else {
+				
+			//	current_seq_pos = 0; // user pressed wrong key => reset seq
+			//	current_seq_times = []; // reset times
+			}
+				
 			// erase on CE press
 			if (btnVal == 'CE') {
 				input.innerHTML = '';
 				decAdded = false;
 				// record the screen reset
-				if (screen_resets_by_task[generate_task.q_count - 1] == 0)
+				if (screen_resets_by_task[generate_task.q_count - 1] == 0) {
 					screen_resets_by_task[generate_task.q_count - 1]++;
-				else
+					times.push(time_tap());
+				}
+				else {
 					errors_by_task[generate_task.q_count - 1]++; 
+					current_seq_pos = 0; // user pressed wrong key => reset seq
+					current_seq_times = []; // reset times
+				}
 			}
 			// eval key press
 			else if (btnVal == '=') {
@@ -161,9 +206,15 @@ function setup() {
 					}
 					input.innerHTML = out;
 
-					if (current_task.answer == out)
+					if (current_task.answer == out) {
+						for (var i =0 ; i < current_seq_times.length; i++) times.push(current_seq_times[i]);
+						current_seq_pos = 0;    //  reset seq
+   						current_seq_times = []; // reset times
+						current_key_seq = [];
 						generate_task();  // correct  answer -> generate a new task
+					}
 
+						
 					/* Do not register an error if the user's answer is incorrect.
 					   This will be handled by the user pressing 'CE' by himself.
                        Else, they cannot proceed any further with the tasks.      */
@@ -245,6 +296,7 @@ function setup() {
 
 	// generate first task for user
 	generate_task();
+
 }
 
 window.onload = setup;
@@ -389,11 +441,13 @@ function calc_click(event) {
 	click_coords_record.push([pos_x, pos_y]);
 }
 //----------------------------------------------------------------------------------
-
+// add expected key presses to both records (keys_to_press & current_key_seq)
 function add_to_keys_record(arg) {
 	var stringified = arg.toString();
-	for (var i = 0; i < stringified.length; ++i)
+	for (var i = 0; i < stringified.length; ++i) {
 		keys_to_press.push(stringified[i]);
+		current_key_seq.push(stringified[i]);
+	}
 }
 
 //Pie chart data generator. Uses records of user errors
@@ -420,5 +474,52 @@ function exampleData() {
         "value" : errors_by_task[4]
       } 
     ];
+}
+
+// ------------------------- Table generation -------------------------
+// Taken from http://stackoverflow.com/questions/14643617/create-table-using-javascript
+// and modified for own purposes
+function tableCreate(){
+    var body = document.body,
+        tbl  = document.createElement('table');
+    tbl.style.width  = '100px';
+    tbl.style.border = '1px solid black';
+
+    for(var i = 0; i < 10; i++){
+        var tr = tbl.insertRow();
+        for(var j = 0; j < 5; j++){
+			if (i == 0) {
+				var td = tr.insertCell();
+				switch(j) {
+				case 0:
+					td.appendChild(document.createTextNode('Task #'));
+					td.style.border = '1px solid black';
+					break;
+				case 1:
+					td.appendChild(document.createTextNode('W(idth)'));
+					td.style.border = '1px solid black';
+					break;
+				case 2:
+					td.appendChild(document.createTextNode('ID'));
+					td.style.border = '1px solid black';
+					break;
+				case 3:
+					td.appendChild(document.createTextNode('MT (milis)'));
+					td.style.border = '1px solid black';
+					break;
+				case 4:
+					td.appendChild(document.createTextNode('TP (b/s)'));
+					td.style.border = '1px solid black';
+					break;
+				default: break;
+				}
+			}
+			else {
+				// POPULATE rows
+
+			}   
+        }
+    }
+    body.appendChild(tbl);
 }
 
