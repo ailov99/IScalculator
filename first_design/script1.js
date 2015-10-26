@@ -12,7 +12,7 @@ function randelem(list) {
 // templates
 var tasks = [{text: "Calculate A + B", expr: "A + B"},
 			 {text: "Find the D of E(A+B)", expr: "D(E(A+B))"}];
-var arith_ops = ['^', '+' ,'-', '*'];
+var arith_ops = ['^', '+' ,'-', '*', '/'];
 var funcs = ["sin", "cos", "tan", "log"];
 
 // global user task currently in progress, contains:
@@ -25,6 +25,8 @@ var q_count = 1;
 // task text record
 var task_texts = ['','','','',''];
 
+// Record of keys-to-be-pressed from all tasks (used for Fitt's Law calculations)
+var keys_to_press = [];
 
 // User error counter (misclicks + wrong equation)
 var errors_by_task = [0, 0, 0, 0, 0];
@@ -43,12 +45,22 @@ function generate_task() {
 		var op = randelem(arith_ops);
 		task = {text: 'Calculate ' + num1 + op + num2,
 				answer: math.eval(num1+op+num2).toString()};
+		add_to_keys_record(num1);
+		keys_to_press.push(op);
+		add_to_keys_record(num2);
+		keys_to_press.push('=');
+		keys_to_press.push('CE');
 		break;
 	}
 	case 2: {
 		var num1 = randint(1,99);
-		task = {text: 'Find the square of ' + num1,
+		task = {text: 'Find the value of ' + num1 + ' squared',
 				answer: math.eval(num1+'^2')};
+		add_to_keys_record(num1);
+		keys_to_press.push('^');
+		keys_to_press.push('2');
+		keys_to_press.push('=');
+		keys_to_press.push('CE');
 		break;
 	}
 	case 3: {
@@ -56,6 +68,11 @@ function generate_task() {
 		var func = randelem(funcs);
 		task = {text: 'Find the ' + func + ' of ' + num1,
 				answer: math.eval(func+'('+num1+')')};
+		keys_to_press.push(func.toString());
+		add_to_keys_record(num1);
+		keys_to_press.push(')');
+		keys_to_press.push('=');
+		keys_to_press.push('CE');
 		break;
 	}
 	case 4: {
@@ -66,32 +83,32 @@ function generate_task() {
 		var op = randelem(arith_ops);
 		task = {text: 'What is the ' + func + ' of ' + num1 + '.' + num2 + op + num3 + ' ?',
 				answer: math.eval(func+'('+num1+'.'+num2+op+num3+')')};
+		keys_to_press.push(func.toString());
+		add_to_keys_record(num1);
+		keys_to_press.push('.');
+		add_to_keys_record(num2);
+		keys_to_press.push(op);
+		add_to_keys_record(num3);
+		keys_to_press.push(')');
+		keys_to_press.push('=');
+		keys_to_press.push('CE');
 		break;
 	}
 	case 5: {
 		var num1 = randint(1,50);
-		task = {text: 'What is the area of a circle with a radius of   ' + num1 + ' ? ( hint: A = pi*sqrt(r) )',
+		task = {text: 'What is the area of a circle with a radius of   ' + num1 + ' ? ( hint: A = pi*square(r) )',
 				answer: math.eval('pi*'+num1+'^2')};
+		keys_to_press.push('pi');
+		keys_to_press.push('*');
+		add_to_keys_record(num1);
+		keys_to_press.push('^');
+		keys_to_press.push('2');
+		keys_to_press.push('=');
 		break;
 	}
 	default: {
 		task = {text: 'CONGRATULATIONS! YOU HAVE FINISHED THE QUIZ!',
 				answer: ''};
-		//$( "#dialog" ).dialog( "open" );
-			nv.addGraph(function() {
-		var chart = nv.models.pieChart()
-			.x(function(d) { return d.label })
-			.y(function(d) { return d.value })
-			.showLabels(true);
-
-		d3.select("#chart svg")
-			.datum(exampleData())
-			.transition().duration(350)
-			.call(chart);
-
-		return chart;
-	});
-
 		break;
 	}
 	}
@@ -105,7 +122,7 @@ function generate_task() {
 function setup() {
 	// Get all keys
 	var keys = document.querySelectorAll('#calculator span');
-	var operators = ['n!', 'log', '(', ')', '^', 'sin', '÷', 'cos', '*', 'tan', '-', 'pi', '=', '+'];
+	var operators = ['n!', 'log', '(', ')', '^', 'sin', '/', 'cos', '*', 'tan', '-', 'pi', '=', '+'];
 	var verbose = ['log', 'sin', 'cos', 'tan'];
 	var decAdded = false;
 
@@ -161,7 +178,7 @@ function setup() {
 					
 				case 'n!': {
 					if (inputVal != '')
-						if ( ['(', '^', '÷', '*', '-', '+'].indexOf(last) < 0 )
+						if ( ['(', '^', '/', '*', '-', '+'].indexOf(last) < 0 )
 							input.innerHTML += '!';
 					break;
 				}
@@ -173,7 +190,7 @@ function setup() {
 					if (inputVal == '') 
 						input.innerHTML += btnVal + '(';				
 					else 
-						if ( ['(', '+', '-', '*', '÷', '^'].indexOf(last) > -1 ) 
+						if ( ['(', '+', '-', '*', '/', '^'].indexOf(last) > -1 ) 
 							input.innerHTML += btnVal + '(';						
 					break;
 				}
@@ -183,18 +200,18 @@ function setup() {
 					if (inputVal == '')
 						input.innerHTML += btnVal;
 					else 
-						if ( ['(', '^', '÷', '*', '-', '+'].indexOf(last) > -1 )
+						if ( ['(', '^', '/', '*', '-', '+'].indexOf(last) > -1 )
 							input.innerHTML += btnVal;
 					break;
 				}
 					
 				case ')':
 				case '^': 
-				case '÷':
+				case '/':
 				case '+':
 				case '*': {
 					if (inputVal != '') 
-						if ( ['(', '^', '÷', '*', '-', '+'].indexOf(last) < 0 ) 
+						if ( ['(', '^', '/', '*', '-', '+'].indexOf(last) < 0 ) 
 							input.innerHTML += btnVal;
 					break;
 				}
@@ -225,35 +242,100 @@ function setup() {
 			e.getPreventDefault();
 		}
 	}
-	//plot_one();
-	//d3.select("body").select("#rightpane").on("mousemove", function() {var pt = d3.mouse(this); tick(pt);});
+
 	// generate first task for user
 	generate_task();
-
 }
 
 window.onload = setup;
 
 
-// mouse movement coords tick
-function tick(pt) {
-	console.log(pt[0]);
-	console.log(pt[1]);
+// Renders the linechart for the IDs
+function plot_ID_linechart() {
+
+	nv.addGraph(function() {
+		var chart = nv.models.lineChart()
+            .margin({left: 100})  //Adjust chart margins to give the x-axis some breathing room.
+            .useInteractiveGuideline(true)  //We want nice looking tooltips and a guideline!  
+            .showYAxis(true)        //Show the y-axis 
+            .showXAxis(true)        //Show the x-axis
+		;
+
+		chart.xAxis     //Chart x-axis settings
+	  		 .axisLabel('Tasks (#)')
+			 .tickFormat(d3.format(',r'));
+
+		chart.yAxis     //Chart y-axis settings
+             .axisLabel('Difficulty Index (ID)')
+             .tickFormat(d3.format('.02f'));
+
+		/* Done setting the chart up? Time to render it! */
+		var myData = [ { values: ID_list_to_plot(get_ID_list(keys_to_press)), key: 'ID', color: '#2ca02c' } ];  
+
+		d3.select('#chart svg')    //Select the <svg> element you want to render the chart in.   
+		  .datum(myData)         //Populate the <svg> element with chart data...
+          .call(chart);          //Finally, render the chart!
+
+		//Update the chart when window resizes.
+		nv.utils.windowResize(function() { chart.update() });
+		
+		return chart;
+	});
 }
 
-$(function() {
-  $( "#dialog" ).dialog({
-    autoOpen: false,
-    show: {
-      effect: "blind",
-      duration: 1000
-    },
-    hide: {
-      effect: "explode",
-      duration: 1000
-    }
-  });
-});
+
+// parses the ready ID list to format suitable for plotting
+// [ {x:1, y:22}, ...... ]
+function ID_list_to_plot(ID_list) {
+	var data = [];
+	
+	for (var i = 0; i < ID_list.length; ++i) {
+		var ob = {x: i+1, y: ID_list[i]};
+		data.push(ob);
+	}
+
+	return data;
+}
+
+// generate list of ID's for each user action using Fitt's Law
+// commands_list : list of commands to-be-executed by the user
+function get_ID_list(commands_list) {
+	var ID_list = [];
+	var w = 66;  // constant pixel width
+	var a = get_dist("#task_pane", get_tag(commands_list[0]));    // distance to widget
+	
+	ID_list.push(math.log(a/w + 1));
+
+	for (var i = 0; i < commands_list.length - 1; ++i) { 
+		a = get_dist(get_tag(commands_list[i]), get_tag(commands_list[i+1]));
+		ID_list.push(math.log(a/w + 1));
+	}
+
+	return ID_list;
+}
+
+// parse keys as tags for JQuery
+function get_tag(key) {
+	switch(key) {
+	case 'n!': return "#b_fact";
+	case '(': return "#b_opbrace";
+	case ')': return "#b_clbrace";
+	case '^': return "#b_pow";
+	case '/': return "#b_div";
+	case '*': return "#b_mul";
+	case '-': return "#b_min";
+	case '=': return "#b_eq";
+	case '+': return "#b_add";
+	case '.': return "#b_dec";
+	default: return "#b_" + key;
+	}
+}
+
+// calculate distance between two DIVs given their tags
+function get_dist(id1, id2) {
+	return Math.max(Math.abs($(id1).offset().left - $(id2).offset().left),
+					Math.abs($(id1).offset().top - $(id2).offset().top));
+}
 
 //------------------ User clicks on calculator plot -----------------------------
 // Plots user clicks as dots
@@ -308,6 +390,11 @@ function calc_click(event) {
 }
 //----------------------------------------------------------------------------------
 
+function add_to_keys_record(arg) {
+	var stringified = arg.toString();
+	for (var i = 0; i < stringified.length; ++i)
+		keys_to_press.push(stringified[i]);
+}
 
 //Pie chart data generator. Uses records of user errors
 function exampleData() {
@@ -334,11 +421,4 @@ function exampleData() {
       } 
     ];
 }
-
-
-
-
-
-
-
 
