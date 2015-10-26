@@ -203,3 +203,10 @@ html {
 	height: 400px;
 }
 
+#pie_svg {
+	height: 250px;
+	width: 400px;
+	float: left;
+}
+
+

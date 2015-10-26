@@ -138,7 +138,8 @@ function generate_task() {
 		task = {text: 'CONGRATULATIONS! YOU HAVE FINISHED THE QUIZ!',
 				answer: ''};
 		$('#task_pane').remove();
-		break;
+		show_pie_chart();
+		return;
 	}
 	}
 
@@ -450,8 +451,25 @@ function add_to_keys_record(arg) {
 	}
 }
 
+//---------------------------- Pie Chart -------------------------------------------------
+function show_pie_chart() {
+	nv.addGraph(function() {
+		var chart = nv.models.pieChart()
+			.x(function(d) { return d.label })
+			.y(function(d) { return d.value })
+			.showLabels(true);
+
+		d3.select("#pie_svg")
+			.datum(gen_pie_data())
+			.transition().duration(350)
+			.call(chart);
+
+		return chart;
+	});
+}
+
 //Pie chart data generator. Uses records of user errors
-function exampleData() {
+function gen_pie_data() {
   return  [
       { 
         "label": task_texts[0],
