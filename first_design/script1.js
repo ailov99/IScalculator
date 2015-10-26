@@ -139,13 +139,14 @@ function generate_task() {
 				answer: ''};
 		$('#task_pane').remove();
 		show_pie_chart();
+		plot_ID_linechart();
 		return;
 	}
 	}
 
 	var display_string = 'Q' + generate_task.q_count + '. ' + task.text;
 	document.querySelector('.task').innerHTML = display_string;
-	task_texts[generate_task.q_count - 1] = display_string.substring(0, 29);  // keep task's generated text for the records
+	task_texts[generate_task.q_count - 1] = display_string.substring(0, 9);  // keep task's generated text for the records
 	current_task = task;
 }
 
@@ -303,6 +304,9 @@ function setup() {
 window.onload = setup;
 
 
+// ----------------------------- Line Chart --------------------------------------------------------
+// Taken from "http://nvd3.org/examples/line.html"
+// and modified for own purposes
 // Renders the linechart for the IDs
 function plot_ID_linechart() {
 
@@ -312,20 +316,22 @@ function plot_ID_linechart() {
             .useInteractiveGuideline(true)  //We want nice looking tooltips and a guideline!  
             .showYAxis(true)        //Show the y-axis 
             .showXAxis(true)        //Show the x-axis
+			.forceY(3)
 		;
 
 		chart.xAxis     //Chart x-axis settings
-	  		 .axisLabel('Tasks (#)')
+	  		.axisLabel('Tasks (#)')
+			.ticks(10)
 			 .tickFormat(d3.format(',r'));
 
 		chart.yAxis     //Chart y-axis settings
-             .axisLabel('Difficulty Index (ID)')
+            .axisLabel('Difficulty Index (ID)')
              .tickFormat(d3.format('.02f'));
 
 		/* Done setting the chart up? Time to render it! */
 		var myData = [ { values: ID_list_to_plot(get_ID_list(keys_to_press)), key: 'ID', color: '#2ca02c' } ];  
 
-		d3.select('#chart svg')    //Select the <svg> element you want to render the chart in.   
+		d3.select('#line_svg')    //Select the <svg> element you want to render the chart in.   
 		  .datum(myData)         //Populate the <svg> element with chart data...
           .call(chart);          //Finally, render the chart!
 
@@ -353,9 +359,10 @@ function ID_list_to_plot(ID_list) {
 // generate list of ID's for each user action using Fitt's Law
 // commands_list : list of commands to-be-executed by the user
 function get_ID_list(commands_list) {
+	console.log(commands_list);
 	var ID_list = [];
 	var w = 66;  // constant pixel width
-	var a = get_dist("#task_pane", get_tag(commands_list[0]));    // distance to widget
+	var a = get_dist("#pie_chart", get_tag(commands_list[0]));    // distance to widget
 	
 	ID_list.push(math.log(a/w + 1));
 
@@ -386,8 +393,14 @@ function get_tag(key) {
 
 // calculate distance between two DIVs given their tags
 function get_dist(id1, id2) {
+	try {
 	return Math.max(Math.abs($(id1).offset().left - $(id2).offset().left),
 					Math.abs($(id1).offset().top - $(id2).offset().top));
+
+	}catch(err) {
+		console.log(id1);
+		console.log(id2);
+	}
 }
 
 //------------------ User clicks on calculator plot -----------------------------
@@ -452,6 +465,8 @@ function add_to_keys_record(arg) {
 }
 
 //---------------------------- Pie Chart -------------------------------------------------
+// Taken from "http://nvd3.org/examples/pie.html"
+// and modified for own purposes
 function show_pie_chart() {
 	nv.addGraph(function() {
 		var chart = nv.models.pieChart()
@@ -495,7 +510,7 @@ function gen_pie_data() {
 }
 
 // ------------------------- Table generation -------------------------
-// Taken from http://stackoverflow.com/questions/14643617/create-table-using-javascript
+// Taken from "http://stackoverflow.com/questions/14643617/create-table-using-javascript"
 // and modified for own purposes
 function tableCreate(){
     var body = document.body,

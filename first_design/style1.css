@@ -203,8 +203,9 @@ html {
 	height: 400px;
 }
 
-#pie_svg {
-	height: 250px;
+#pie_svg,
+#line_svg {
+	height: 300px;
 	width: 400px;
 	float: left;
 }
