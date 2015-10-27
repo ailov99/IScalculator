@@ -1,0 +1,211 @@
+/* Basic reset */
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+
+	font: bold 17px Arial, sans-serif;
+}
+
+/* BG gradient */
+html {
+	height: 100%;
+	background: radial-gradient(circle, #fff 20%, #ccc);
+	background-size: cover;
+}
+
+#leftpane {
+	float: left;
+	width: 30%;
+	height: 100%;
+	position: relative;
+}
+
+#leftpane .task {
+	position: absolute;
+	
+	width: 80%;
+	height: 200px;
+
+	background: white;
+	border-radius: 3px;
+	box-shadow: 0px 4px rgba(0, 0, 0, 0.2);
+
+	margin: 10% 10% 10% 10%;
+
+	color: #888;
+	line-height: 100px;
+	text-align: center;
+
+	/* no key label selection (all browsers) */
+	-moz-user-select: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+
+
+#rightpane {
+	float: right;
+	width: 70%;
+	height: 100%;
+}
+
+
+#calculator {
+	width: 405px;
+	height: auto;
+	
+	margin: 100px auto;
+	padding: 20px 20px 9px;
+
+	position: relative;
+	z-index: 0;
+	
+	background: linear-gradient(#9dd2ea, #8bceec); /* blue bg */
+	border-radius: 3px;                            /* slants angles? */
+	box-shadow: 0px 4px #009de4, 0px 10px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Top (Clear/Screen) */
+.top .clear {
+	float: left;
+}
+
+.top .screen {
+	height: 40px;
+	width: 285px;
+
+	float: left;
+
+	padding: 0 5px;
+	
+	background: rgba(0, 0, 0, 0.2);
+	border-radius: 3px;
+	box-shadow: inset 0px 4px rgba(0, 0, 0, 0.2);
+
+	/* screen text properties */
+	font-size: 18px;
+	line-height: 40px;
+	color: white;
+	text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+	text-align: right;
+	letter-spacing: 1px;
+}
+
+.keys, .top {overflow: hidden;}
+
+/* for each key "box" */
+.keys span, .top span.clear {
+	float: left;
+	position: relative;
+	top: 0;
+
+	cursor: pointer;
+	
+	width: 66px;
+	height: 36px;
+
+	background: white;
+	border-radius: 3px;
+	box-shadow: 0px 4px rgba(0, 0, 0, 0.2);
+
+	margin: 0 7px 11px 0;
+
+	color: #888;
+	line-height: 36px;
+	text-align: center;
+
+	/* no key label selection (all browsers) */
+	-moz-user-select: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+
+	/* smooth hover & act states (css3) */
+	transition: all 0.1s ease;
+}
+
+/* custom styles for key classes */
+.keys span.op {
+	background: #cbcef6;
+}
+
+.keys span.eval {
+	background: #e1cbaa;
+	box-shadow: 0px 4px #c1b095;
+	color: #888e5f;
+}
+
+.top span.clear {
+	background: #e8f0aa;
+	box-shadow: 0px 4px #ced49f;
+}
+
+/* button hover effects */
+.keys span:hover {
+	background: #c3c3c3;
+}
+
+.keys span.op:hover {
+	background: #afb2d6;
+}
+
+.keys span.eval:hover {
+	background: #bdaa8f;
+	box-shadow: 0px 4px #a3947b;
+	color: #888e5f;
+}
+
+.top span.clear:hover {
+	background: #d1d89b;
+	box-shadow: 0px 4px #9da373;
+}
+
+/* button click effects */
+.keys span:active {
+	box-shadow: 0px 0px #888;
+	top: 4px;
+}
+
+.keys span.op:active {
+	box-shadow: 0px 0px #888;
+	top: 4px;
+}
+
+.keys span.eval:active {
+	box-shadow: 0px 0px #a3947b;
+	top: 4px;
+}
+
+.top span.clear:active {
+	box-shadow: 0px 0px #9da373;
+	top: 4px;
+}
+
+
+.graph-svg-component {
+    background-color: AliceBlue;
+	position: absolute;
+	z-index: 1;
+	opacity: .5;
+	float: left;
+}
+
+#plot_wrap {
+	position: absolute;
+}
+
+#chart svg {
+	height: 400px;
+}
+
+#pie_svg,
+#line_svg {
+	height: 300px;
+	width: 400px;
+	float: left;
+}

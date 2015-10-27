@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+  <head>
+	<meta http-equiv="Content-Type" content="text/html;
+											 charset=utf-8">
+	<link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+	<link rel="stylesheet" type="text/css" href="style1.css">
+	<script type="text/javascript"
+			src="../third_party/jquery.js"></script>
+	<script type="text/javascript" src="../third_party/jquery-ui.min.js"></script>
+	<script src="http://d3js.org/d3.v3.min.js"
+			charset="utf-8"></script> 
+    <script type="text/javascript" src="script1.js" ></script>
+	<script type="text/javascript" src="../third_party/math.min.js"></script>
+    <link href="../third_party/nv.d3.min.css" rel="stylesheet">
+    <script src="../third_party/nv.d3.min.js"></script>
+	<script src="https://rawgit.com/gka/d3-jetpack/master/d3-jetpack.js"></script>
+  </head>
+
+
+  <body>
+	<div id="leftpane">
+	  <!-- User Tasks -->
+	  <span class="task" id="task_pane"></span>
+	  <div id="pie_chart">
+		<svg id="pie_svg"></svg>
+	  </div>
+	  <div id="line_chart">
+		<svg id="line_svg"></svg>
+   	  </div>
+	</div>
+
+
+	<div id="rightpane">
+	 
+	  <div id="calculator">
+		<div id="plot_wrap"></div>
+	    <!-- Clear/Reset/Screen -->
+	    <div class="top">
+		  <span class="clear" id="b_CE">CE</span>
+		  <div class="screen"></div>
+	    </div>
+	  
+	    <div class="keys">
+		  <!-- keys -->
+		  <span class="op" id="b_fact">n!</span>
+		  <span class="op" id="b_log">log</span>
+		  <span class="op" id="b_opbrace">(</span>
+		  <span class="op" id="b_clbrace">)</span>
+		  <span class="op" id="b_pow">^</span>
+		  <span class="op" id="b_sin">sin</span>
+		  <span id="b_9"           >9</span>
+		  <span id="b_8"           >8</span>
+		  <span id="b_7"           >7</span>
+		  <span class="op" id="b_div">/</span>
+		  <span class="op" id="b_cos">cos</span>
+		  <span id="b_6"           >6</span>
+		  <span id="b_5"           >5</span>
+		  <span id="b_4"           >4</span>
+		  <span class="op" id="b_mul">*</span>
+		  <span class="op" id="b_tan">tan</span>
+		  <span id="b_3"           >3</span>
+		  <span id="b_2"           >2</span>
+	      <span id="b_1"           >1</span>
+	      <span class="op" id="b_min">-</span>
+		  <span class="op" id="b_pi">pi</span>
+		  <span id="b_0"           >0</span>
+		  <span id="b_dec"           >.</span>
+		  <span class="eval" id="b_eq">=</span>
+		  <span class="op" id="b_add">+</span>
+	    </div>
+	  </div>
+	</div>
+
+<div id="dialog">
+ 
+</div>
+
+
+
+  <body>
+
+
+</html>
