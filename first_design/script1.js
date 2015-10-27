@@ -140,6 +140,7 @@ function generate_task() {
 		$('#task_pane').remove();
 		show_pie_chart();
 		plot_ID_linechart();
+		plot_one();
 		return;
 	}
 	}
@@ -299,6 +300,11 @@ function setup() {
 	// generate first task for user
 	generate_task();
 
+	// Event hook for the "dot" plotting of user clicks on the calculator
+	$('#calculator').on('click', function(e) {
+		var offs = $('#calculator').offset();
+		click_coords_record.push([e.clientX - offs.left - 20, e.clientY - offs.top - 20]);
+	});
 }
 
 window.onload = setup;
@@ -403,11 +409,16 @@ function get_dist(id1, id2) {
 	}
 }
 
-//------------------ User clicks on calculator plot -----------------------------
+//---------------------- User Clicks Plot  -----------------------------
+// Taken from "http://bl.ocks.org/mbostock/fe3f75700e70416e37cd"
+// and modified for own purposes
+
+// record of user clicks on the calculator
+var click_coords_record = [];
+
+
 // Plots user clicks as dots
 function plot_one() {
-
-	var sample = uniformRandomSampler(1000);
 
 	var svg = d3.select("#plot_wrap")
 		.append("svg")
@@ -416,44 +427,18 @@ function plot_one() {
 		.attr("class", "graph-svg-component");
 
 	d3.timer(function() {
-		for (var i = 0; i < 10; ++i) {
-			var s = sample();
-			if (!s) return true;
+		for (var i = 0; i < click_coords_record.length; ++i) {
 			svg.append("circle")
-				.attr("cx", s[0])
-				.attr("cy", s[1])
+				.attr("cx", click_coords_record[i][0])
+				.attr("cy", click_coords_record[i][1])
 				.attr("r", 0)
 				.transition()
 				.attr("r", 2);
 		}
+		return true;
 	});
 }
 
-function uniformRandomSampler(numSamplesMax) {
-  var numSamples = 0;
-  return function() {
-      if (++numSamples > numSamplesMax) return;
-	  var ran = randelem(click_coords_record);
-      //return [ran[0], ran[1]];
-	  return [randint(0,500), randint(0,500)];
-  };
-}
-
-
-// record of user clicks on the calculator
-var click_coords_record = [];
-
-// Callback for calculator clicks
-function calc_click(event) {
-    pos_x = event.offsetX?(event.offsetX):event.pageX-document.getElementById("calculator").offsetLeft;
-	pos_y = event.offsetY?(event.offsetY):event.pageY-document.getElementById("calculator").offsetTop;
-	// get coords of element under cursor
-	//pos_x = event.offsetX?(event.offsetX):event.pageX-document.getElementById(document.elementFromPoint(event.clientX, event.clientY)).offsetLeft;
-	//pos_y = event.offsetY?(event.offsetY):event.pageY-document.getElementById(document.elementFromPoint(event.clientX, event.clientY)).offsetTop;
-    //	console.log(pos_x);
-	//	console.log(pos_y);
-	click_coords_record.push([pos_x, pos_y]);
-}
 //----------------------------------------------------------------------------------
 // add expected key presses to both records (keys_to_press & current_key_seq)
 function add_to_keys_record(arg) {
