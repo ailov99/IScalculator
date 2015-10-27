@@ -8,8 +8,6 @@ function randelem(list) {
 	return list[Math.floor(Math.random()*list.length)];
 }
 
-
-
 // --------------------------- Timer ---------------------------
 var date;
 // global times record
@@ -47,6 +45,7 @@ var current_key_seq = [];
 var current_seq_pos = 0;    // current index of key to-be-pressed
 var current_seq_times = []; // times of presses so far
 
+
 // User error counter (misclicks + wrong equation)
 var errors_by_task = [0, 0, 0, 0, 0];
 var screen_resets_by_task = [0,0,0,0,0];
@@ -81,10 +80,6 @@ function generate_task() {
 		keys_to_press.push('2'); current_key_seq.push('2');
 		keys_to_press.push('='); current_key_seq.push('=');
 		keys_to_press.push('CE'); current_key_seq.push('CE');
-		console.log(times);
-		console.log(current_key_seq);
-		console.log(current_seq_pos);
-		console.log(current_seq_times);
 		break;
 	}
 	case 3: {
@@ -97,10 +92,6 @@ function generate_task() {
 		keys_to_press.push(')'); current_key_seq.push(')');
 		keys_to_press.push('='); current_key_seq.push('=');
 		keys_to_press.push('CE'); current_key_seq.push('CE');
-				console.log(times);
-		console.log(current_key_seq);
-		console.log(current_seq_pos);
-		console.log(current_seq_times);
 		break;
 	}
 	case 4: {
@@ -138,9 +129,11 @@ function generate_task() {
 		task = {text: 'CONGRATULATIONS! YOU HAVE FINISHED THE QUIZ!',
 				answer: ''};
 		$('#task_pane').remove();
-		show_pie_chart();
-		plot_ID_linechart();
-		plot_one();
+		show_pie_chart();     // Pie chart (top-left)
+		plot_ID_linechart();  // Line chart (mid-left)
+		plot_one();           // Dot chart (mid-right)
+		table_create();       // Observation table (mid)
+
 		return;
 	}
 	}
@@ -204,7 +197,6 @@ function setup() {
 						out = math.eval(eq);
 					}
 					catch(err) {
-						console.log(eq);
 						out = 'error';  // invalid expression
 					}
 					input.innerHTML = out;
@@ -365,8 +357,8 @@ function ID_list_to_plot(ID_list) {
 // generate list of ID's for each user action using Fitt's Law
 // commands_list : list of commands to-be-executed by the user
 function get_ID_list(commands_list) {
-	console.log(commands_list);
 	var ID_list = [];
+	
 	var w = 66;  // constant pixel width
 	var a = get_dist("#pie_chart", get_tag(commands_list[0]));    // distance to widget
 	
@@ -497,45 +489,67 @@ function gen_pie_data() {
 // ------------------------- Table generation -------------------------
 // Taken from "http://stackoverflow.com/questions/14643617/create-table-using-javascript"
 // and modified for own purposes
-function tableCreate(){
+function table_create(){
+	//regenerate ID list
+	var ID_list = get_ID_list(keys_to_press);
+	// Generate a list of TPs for each task using the times and IDd records
+	// TP = ID/MT
+	var TP_list = [];
+	for (var i = 0; i < times.length; ++i) 
+		TP_list.push((ID_list[i] * 1000) / times[i]);
+
     var body = document.body,
         tbl  = document.createElement('table');
     tbl.style.width  = '100px';
     tbl.style.border = '1px solid black';
 
-    for(var i = 0; i < 10; i++){
+    for(var i = -1; i < ID_list.length; i++){
         var tr = tbl.insertRow();
         for(var j = 0; j < 5; j++){
-			if (i == 0) {
-				var td = tr.insertCell();
-				switch(j) {
-				case 0:
+			var td = tr.insertCell();
+			switch(j) {
+			case 0:
+				if (i == -1)
 					td.appendChild(document.createTextNode('Task #'));
-					td.style.border = '1px solid black';
-					break;
-				case 1:
+				else 
+					td.appendChild(document.createTextNode('#' + (i+1)));
+					
+				td.style.border = '1px solid black';
+				break;
+			case 1:
+				if (i == -1)
 					td.appendChild(document.createTextNode('W(idth)'));
-					td.style.border = '1px solid black';
-					break;
-				case 2:
-					td.appendChild(document.createTextNode('ID'));
-					td.style.border = '1px solid black';
-					break;
-				case 3:
-					td.appendChild(document.createTextNode('MT (milis)'));
-					td.style.border = '1px solid black';
-					break;
-				case 4:
-					td.appendChild(document.createTextNode('TP (b/s)'));
-					td.style.border = '1px solid black';
-					break;
-				default: break;
-				}
-			}
-			else {
-				// POPULATE rows
+				else
+					td.appendChild(document.createTextNode('66px'));
 
-			}   
+				td.style.border = '1px solid black';
+				break;
+			case 2:
+				if (i == -1)
+					td.appendChild(document.createTextNode('ID'));
+				else
+					td.appendChild(document.createTextNode(ID_list[i].toFixed(3)));
+
+				td.style.border = '1px solid black';
+				break;
+			case 3:
+				if (i == -1)
+					td.appendChild(document.createTextNode('MT (milis)'));
+				else
+					td.appendChild(document.createTextNode(times[i]));
+
+				td.style.border = '1px solid black';
+				break;
+			case 4:
+				if (i == -1)
+					td.appendChild(document.createTextNode('TP (b/s)'));
+				else
+					td.appendChild(document.createTextNode(TP_list[i].toFixed(3)));
+				
+				td.style.border = '1px solid black';
+				break;
+			default: break;
+			}
         }
     }
     body.appendChild(tbl);
