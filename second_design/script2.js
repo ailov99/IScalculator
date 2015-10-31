@@ -359,7 +359,7 @@ function ID_list_to_plot(ID_list) {
 function get_ID_list(commands_list) {
 	var ID_list = [];
 	
-	var w = 66;  // constant pixel width
+	var w = 59;  // width coefficient (avg of width(66), height(36), diagonal)
 	var a = get_dist("#pie_chart", get_tag(commands_list[0]));    // distance to widget
 	
 	ID_list.push(math.log(a/w + 1));
@@ -518,9 +518,9 @@ function table_create(){
 				break;
 			case 1:
 				if (i == -1)
-					td.appendChild(document.createTextNode('W(idth)'));
+					td.appendChild(document.createTextNode('W(coeff)'));
 				else
-					td.appendChild(document.createTextNode('66px'));
+					td.appendChild(document.createTextNode('59px'));
 
 				td.style.border = '1px solid black';
 				break;
